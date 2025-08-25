@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -22,26 +23,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%+v\n", snippet)
 	}
 
-	// files := []string{
-	// 	"./ui/html/base.tmpl.html",
-	// 	"./ui/html/partials/nav.tmpl.html",
-	// 	"./ui/html/pages/home.tmpl.html",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, r, err)
-	// 	// app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
-	// 	// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// err = ts.ExecuteTemplate(w, "base", nil)
-	// if err != nil {
-	// 	app.serverError(w, r, err)
-	// 	// app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
-	// 	// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// }
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +41,31 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	fmt.Fprintf(w, "%+v", snippet)
+
+	files := []string{
+		"./ui/html/base.tmpl.html",
+		"./ui/html/partials/nav.tmpl.html",
+		"./ui/html/pages/view.tmpl.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, r, err)
+		// app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
+		// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	data := templateData{
+		Snippet: snippet,
+	}
+
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, r, err)
+		// app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
+		// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 
 }
 
