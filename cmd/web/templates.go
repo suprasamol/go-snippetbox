@@ -12,11 +12,12 @@ type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
+	Form        any
 }
 
 func humanDate(t time.Time) string {
-	// return t.Format("02 Jan 2006 as 15:04")
-	return t.Format("02/01/2006 15:04")
+	return t.Format("02 Jan 2006 as 15:04")
+	//return t.Format("02/01/2006 15:04")
 	// reference time: Mon Jan 2 15:04:05 MST 2006”
 	// 						1  2  3  4  5       6
 }
