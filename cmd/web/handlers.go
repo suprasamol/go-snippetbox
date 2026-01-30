@@ -11,11 +11,10 @@ import (
 )
 
 type snippetCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	// FieldErrors map[string]string
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -29,33 +28,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	data.Snippets = snippets
 
 	app.render(w, r, http.StatusOK, "home.tmpl.html", data)
-
-	// Comment หลังจากเรียกหน้าเว็บผ่าน Cache
-	// files := []string{
-	// 	"./ui/html/base.tmpl.html",
-	// 	"./ui/html/partials/nav.tmpl.html",
-	// 	"./ui/html/pages/home.tmpl.html",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, r, err)
-	// 	// app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
-	// 	// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// data := templateData{
-	// 	Snippets: snippets,
-	// }
-
-	// err = ts.ExecuteTemplate(w, "base", data)
-	// if err != nil {
-	// 	app.serverError(w, r, err)
-	// 	// app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
-	// 	// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// }
-
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -79,33 +51,6 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	data.Snippet = snippet
 
 	app.render(w, r, http.StatusOK, "view.tmpl.html", data)
-
-	// Comment หลังจากเรียกหน้าเว็บผ่าน Cache
-	// files := []string{
-	// 	"./ui/html/base.tmpl.html",
-	// 	"./ui/html/partials/nav.tmpl.html",
-	// 	"./ui/html/pages/view.tmpl.html",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, r, err)
-	// 	// app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
-	// 	// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// data := templateData{
-	// 	Snippet: snippet,
-	// }
-
-	// err = ts.ExecuteTemplate(w, "base", data)
-	// if err != nil {
-	// 	app.serverError(w, r, err)
-	// 	// app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
-	// 	// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// }
-
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
@@ -117,24 +62,12 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	var form snippetCreateForm
 
-	err := r.ParseForm()
+	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
-	}
-
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
-	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	form := snippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
-		//FieldErrors: map[string]string{},
 	}
 
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
@@ -148,26 +81,6 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl.html", data)
 		return
 	}
-	// if strings.TrimSpace(form.Title) == "" {
-	// 	form.FieldErrors["title"] = "This field cannot be blank"
-	// } else if utf8.RuneCountInString(form.Title) > 100 {
-	// 	form.FieldErrors["title"] = "This field cannot be more than 100 characters long"
-	// }
-
-	// if strings.TrimSpace(form.Content) == "" {
-	// 	form.FieldErrors["content"] = "This field cannot be blank"
-	// }
-
-	// if form.Expires != 1 && form.Expires != 7 && form.Expires != 365 {
-	// 	form.FieldErrors["expires"] = "This field must equal 1, 7 or 365"
-	// }
-
-	// if len(form.FieldErrors) > 0 {
-	// 	data := app.newTemplateData(r)
-	// 	data.Form = form
-	// 	app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl.html", data)
-	// 	return
-	// }
 
 	id, err := app.snippets.Insert(form.Title, form.Content, form.Expires)
 	if err != nil {
