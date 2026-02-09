@@ -1,6 +1,6 @@
 e-Book Edwards A. - Let's Go - Learn to Build Professional Web App 2025.pdf
 
-Continue Page. 334
+Continue Page. 344
 
 password mysql = root
 
@@ -27,3 +27,22 @@ hashed_password CHAR(60) NOT NULL,
 created DATETIME NOT NULL
 );
 ALTER TABLE users ADD CONSTRAINT users_uc_email UNIQUE (email);
+
+
+คำสั่งสร้าง Exe ไว้ใช้งาน
+# 1. Build binary ไปที่ C:\temp
+cd C:\temp
+go build -o web.exe ..\cmd\web\
+
+# 2. Copy TLS certificates
+สร้าง folder tls ไว้ใน folder temp จากนั้น copy cert.pem กับ key.pem มาไว้
+
+# 3. รัน binary
+web.exe
+
+
+########
+git rm -r --cached tls/     # untrack ครั้งเดียว
+git add .gitignore
+git commit -m "Ignore tls"
+git push                    # ครั้งเดียว
