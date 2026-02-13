@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"html"
 	"io"
 	"log/slog"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 	"time"
 
@@ -14,6 +16,8 @@ import (
 	"github.com/go-playground/form/v4"
 	"github.com/suprasamol/go-snippetbox/internal/models/mocks"
 )
+
+var csrfTokenRX = regexp.MustCompile(`<input type='hidden' name='csrf_token' value='(.+)'>`)
 
 type testServer struct {
 	*httptest.Server
@@ -70,4 +74,12 @@ func newTestApplication(t *testing.T) *application {
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 	}
+}
+
+func extractCSRFToken(t *testing.T, body string) string {
+	matches := csrfTokenRX.FindStringSubmatch(body)
+	if len(matches) < 2 {
+		t.Fatal("no csrf token found in body")
+	}
+	return html.UnescapeString(matches[1])
 }
