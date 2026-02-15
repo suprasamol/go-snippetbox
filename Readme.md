@@ -1,6 +1,6 @@
 e-Book Edwards A. - Let's Go - Learn to Build Professional Web App 2025.pdf
 
-Continue Page. 383 ต่อที่ Testing post requests
+Continue Page. 387 ต่อที่ ผล Run ยังไม่ตรงตาม ebook
 password mysql = root
 
 
