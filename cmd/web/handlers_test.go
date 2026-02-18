@@ -85,12 +85,25 @@ func TestUserSignup(t *testing.T) {
 	defer ts.Close()
 
 	_, _, body := ts.get(t, "/user/signup")
+
+	u, _ := url.Parse(ts.URL)
+	cookiesBefore := ts.client.Jar.Cookies(u)
+	t.Logf("Cookies before POST: %+v", cookiesBefore)
+
 	validCSRFToken := extractCSRFToken(t, body)
 
+	cookies := ts.client.Jar.Cookies(mustParseURL(ts.URL))
+	for _, c := range cookies {
+		t.Logf("cookie: Name=%s Value=%s Secure=%v Path=%s Domain=%s", c.Name, c.Value, c.Secure, c.Path, c.Domain)
+	}
+
 	const (
-		validName     = "Suprasamol Tuppiree"
-		validPassword = "password"
-		validEmail    = "suprasamol@gmail.com"
+		// validName     = "Suprasamol Tuppiree"
+		// validPassword = "password"
+		// validEmail    = "suprasamol@gmail.com"
+		validName     = "Bob"
+		validPassword = "validPa$$word"
+		validEmail    = "bob@example.com"
 		formTag       = "<form action='/user/signup' method='POST' novalidate>"
 	)
 
@@ -160,7 +173,7 @@ func TestUserSignup(t *testing.T) {
 		}, {
 			name:         "Duplicate email",
 			userName:     validName,
-			userEmail:    "suprasamol@gmail.com",
+			userEmail:    "dupe@example.com",
 			userPassword: validPassword,
 			csrfToken:    validCSRFToken,
 			wantCode:     http.StatusUnprocessableEntity,
@@ -176,6 +189,13 @@ func TestUserSignup(t *testing.T) {
 			form.Add("password", tt.userPassword)
 			form.Add("csrf_token", tt.csrfToken)
 			code, _, body := ts.postForm(t, "/user/signup", form)
+
+			cookiesAfter := ts.client.Jar.Cookies(u)
+			t.Logf("Cookies after POST: %+v", cookiesAfter)
+
+			// t.Logf("POST status=%d", code)
+			// t.Logf("POST headers: %+v", hdr)
+			// t.Logf("POST body (snippet): %q", body[:min(1000, len(body))])
 
 			assert.Equal(t, code, tt.wantCode)
 

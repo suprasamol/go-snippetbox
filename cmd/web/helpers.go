@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"runtime/debug"
 	"time"
 
@@ -83,4 +84,9 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	}
 
 	return isAuthenticated
+}
+
+func mustParseURL(u string) *url.URL {
+	v, _ := url.Parse(u)
+	return v
 }

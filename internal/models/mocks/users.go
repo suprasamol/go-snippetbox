@@ -6,7 +6,7 @@ type UserModel struct{}
 
 func (m *UserModel) Insert(name, email, password string) error {
 	switch email {
-	case "suprasamol@gmail.com":
+	case "dupe@example.com":
 		return models.ErrDuplicateEmail
 	default:
 		return nil
@@ -15,7 +15,7 @@ func (m *UserModel) Insert(name, email, password string) error {
 }
 
 func (m *UserModel) Authenticate(email, password string) (int, error) {
-	if email == "user1@gmail.com" && password == "pa$$word" {
+	if email == "alice@example.com" && password == "pa$$word" {
 		return 1, nil
 	}
 	return 0, models.ErrInvalidCredentials

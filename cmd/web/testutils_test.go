@@ -16,6 +16,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	"github.com/suprasamol/go-snippetbox/internal/models/mocks"
+	"golang.org/x/net/publicsuffix"
 )
 
 var csrfTokenRX = regexp.MustCompile(`<input type='hidden' name='csrf_token' value='(.+)'>`)
@@ -27,7 +28,10 @@ type testServer struct {
 
 func newTestServer(t *testing.T, h http.Handler) *testServer {
 	ts := httptest.NewTLSServer(h)
-	jar, err := cookiejar.New(nil)
+	jar, err := cookiejar.New(&cookiejar.Options{
+		PublicSuffixList: publicsuffix.List,
+	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
