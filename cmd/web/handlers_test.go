@@ -88,7 +88,7 @@ func TestUserSignup(t *testing.T) {
 	validCSRFToken := extractCSRFToken(t, body)
 
 	const (
-		validName     = "suprasamol"
+		validName     = "Suprasamol Tuppiree"
 		validPassword = "password"
 		validEmail    = "suprasamol@gmail.com"
 		formTag       = "<form action='/user/signup' method='POST' novalidate>"
@@ -184,5 +184,4 @@ func TestUserSignup(t *testing.T) {
 			}
 		})
 	}
-
 }

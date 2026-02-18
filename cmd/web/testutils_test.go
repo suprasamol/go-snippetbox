@@ -41,6 +41,7 @@ func newTestServer(t *testing.T, h http.Handler) *testServer {
 
 func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, string) {
 	rs, err := ts.Client().Get(ts.URL + urlPath)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,6 +83,7 @@ func extractCSRFToken(t *testing.T, body string) string {
 	if len(matches) < 2 {
 		t.Fatal("no csrf token found in body")
 	}
+
 	return html.UnescapeString(matches[1])
 }
 
