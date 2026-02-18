@@ -22,6 +22,7 @@ var csrfTokenRX = regexp.MustCompile(`<input type='hidden' name='csrf_token' val
 
 type testServer struct {
 	*httptest.Server
+	client *http.Client
 }
 
 func newTestServer(t *testing.T, h http.Handler) *testServer {
@@ -31,22 +32,25 @@ func newTestServer(t *testing.T, h http.Handler) *testServer {
 		t.Fatal(err)
 	}
 
-	ts.Client().Jar = jar
-	ts.Client().CheckRedirect = func(req *http.Request, via []*http.Request) error {
+	client := ts.Client()
+	client.Jar = jar
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 
-	return &testServer{ts}
+	return &testServer{ts, client}
 }
 
 func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, string) {
-	rs, err := ts.Client().Get(ts.URL + urlPath)
+	t.Helper()
+
+	rs, err := ts.client.Get(ts.URL + urlPath)
 
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	defer rs.Body.Close()
+
 	body, err := io.ReadAll(rs.Body)
 	if err != nil {
 		t.Fatal(err)
@@ -88,12 +92,14 @@ func extractCSRFToken(t *testing.T, body string) string {
 }
 
 func (ts *testServer) postForm(t *testing.T, urlPath string, form url.Values) (int, http.Header, string) {
-	rs, err := ts.Client().PostForm(ts.URL+urlPath, form)
+	t.Helper()
+
+	rs, err := ts.client.PostForm(ts.URL+urlPath, form)
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	defer rs.Body.Close()
+
 	body, err := io.ReadAll(rs.Body)
 	if err != nil {
 		t.Fatal(err)
